@@ -14,17 +14,22 @@ func init() { plugin.Register("cassandra", setup) }
 func setup(c *caddy.Controller) error {
 	hosts := make([]string, 0, 3)
 	var keyspace string
-	for c.Next() {
-		for c.NextBlock() {
-			switch c.Val() {
-			case "hosts":
-				hosts = append(hosts, c.RemainingArgs()...)
-			case "keyspace":
-				keyspace = c.Val()
-			default:
-				return plugin.Error("clouddns", c.Errf("unknown property %q", c.Val()))
-			}
+	c.Next()
+	for c.NextBlock() {
+		switch c.Val() {
+		case "hosts":
+			hosts = append(hosts, c.RemainingArgs()...)
+			break
+		case "keyspace":
+			keyspace = c.RemainingArgs()[0]
+			break
+		default:
+			return plugin.Error("cassandra", c.Errf("unknown property %q", c.Val()))
 		}
+	}
+
+	if c.NextArg() {
+		return plugin.Error("cassandra", c.ArgErr())
 	}
 
 	// Add the Plugin to CoreDNS, so Servers can use it in their plugin chain.
