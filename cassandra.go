@@ -27,7 +27,7 @@ func (c Cassandra) ServeDNS(ctx context.Context, writer dns.ResponseWriter, msg 
 
 	cluster := gocql.NewCluster(c.ClusterHosts...)
 	cluster.Keyspace = c.ClusterKeyspace
-	cluster.Consistency = gocql.Quorum
+	cluster.Consistency = gocql.LocalOne
 	session, _ := cluster.CreateSession()
 	name := state.QName()
 	if name[len(name)-1] != '.' {
